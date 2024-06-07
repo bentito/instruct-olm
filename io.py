@@ -4,6 +4,7 @@ import os
 import subprocess
 import tarfile
 import shutil
+import argparse
 from openai import OpenAI
 
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
@@ -34,7 +35,9 @@ def read_file_contents(file_path):
 
 
 def main():
-    # Set OpenAI API key from environment variable
+    parser = argparse.ArgumentParser(description="Process some integers.")
+    parser.add_argument('--no-gpt', action='store_true', help='Do not query GPT model')
+    args = parser.parse_args()
 
     # Get the running insights operator pod
     insights_operator_pod = run_command(
@@ -60,24 +63,29 @@ def main():
     gathers_json_content = read_file_contents(os.path.join(target_dir, "insights-operator/gathers.json"))
     olm_operators_content = read_file_contents(os.path.join(target_dir, "config/olm_operators.json"))
 
-    # Define the prompt for GPT-4
-    prompt = {
-        "role": "system",
-        "content": f"""
-    Analyze the following OpenShift cluster insights data and summarize any findings that a cluster admin would find interesting:
+    if args.no_gpt:
+        # Print the file contents directly for debugging
+        print("Gathers.json Content:\n", gathers_json_content)
+        print("\nOLM Operators Configuration Content:\n", olm_operators_content)
+    else:
+        # Define the prompt for GPT-4
+        prompt = {
+            "role": "system",
+            "content": f"""
+        Analyze the following OpenShift cluster insights data and summarize any findings that a cluster admin would find interesting:
 
-    Gathers.json:
-    {gathers_json_content}
+        Gathers.json:
+        {gathers_json_content}
 
-    OLM Operators Configuration:
-    {olm_operators_content}
-    """}
+        OLM Operators Configuration:
+        {olm_operators_content}
+        """}
 
-    # Query the GPT-4 model with the prompt
-    response = client.chat.completions.create(model="gpt-4o", messages=[prompt])
+        # Query the GPT-4 model with the prompt
+        response = client.chat_completions.create(model="gpt-4", messages=[prompt])
 
-    # Print the response from GPT-4
-    print(response.choices[0].message.content)
+        # Print the response from GPT-4
+        print(response.choices[0].message.content)
 
     # Clean up the temporary files
     shutil.rmtree(temp_location)
