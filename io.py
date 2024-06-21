@@ -104,8 +104,8 @@ def main():
         {olm_operators_content}
         """}
 
-        # Query the GPT-4 model with the prompt
-        response = client.chat_completions.create(model="gpt-4", messages=[prompt])
+        # Query the GPT-4o model with the prompt
+        response = client.chat.completions.create(model="gpt-4o", messages=[prompt])
 
         # Print the response from GPT-4
         print(response.choices[0].message.content)
