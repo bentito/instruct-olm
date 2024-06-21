@@ -12,7 +12,12 @@ client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 def run_command(command):
     """Run a shell command and return the output."""
+    print(f"Running command: {command}")
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    if result.returncode == 0:
+        print(f"Command succeeded with output:\n{result.stdout}")
+    else:
+        print(f"Command failed with error:\n{result.stderr}")
     return result.stdout.strip()
 
 
