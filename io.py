@@ -64,9 +64,16 @@ def main():
     olm_operators_content = read_file_contents(os.path.join(target_dir, "config/olm_operators.json"))
 
     if args.no_gpt:
-        # Print the file contents directly for debugging
-        print("Gathers.json Content:\n", gathers_json_content)
-        print("\nOLM Operators Configuration Content:\n", olm_operators_content)
+        # Print the file contents using jq for pretty-printing, debug
+        print("Gathers.json Content:")
+        jq_process = subprocess.Popen(['jq', '.'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+        gathers_output, _ = jq_process.communicate(input=gathers_json_content)
+        print(gathers_output)
+
+        print("\nOLM Operators Configuration Content:")
+        jq_process = subprocess.Popen(['jq', '.'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+        olm_output, _ = jq_process.communicate(input=olm_operators_content)
+        print(olm_output)
     else:
         # Define the prompt for GPT-4
         prompt = {
