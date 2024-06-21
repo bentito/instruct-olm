@@ -65,8 +65,19 @@ def main():
     extract_files(temp_location, target_dir, filenames_to_extract)
 
     # Gather file contents for GPT-4 analysis
-    gathers_json_content = read_file_contents(os.path.join(target_dir, "insights-operator/gathers.json"))
-    olm_operators_content = read_file_contents(os.path.join(target_dir, "config/olm_operators.json"))
+    gathers_json_path = os.path.join(target_dir, "insights-operator/gathers.json")
+    olm_operators_path = os.path.join(target_dir, "config/olm_operators.json")
+
+    if not os.path.exists(gathers_json_path):
+        print(f"File not found: {gathers_json_path}")
+        return
+
+    if not os.path.exists(olm_operators_path):
+        print(f"File not found: {olm_operators_path}")
+        return
+
+    gathers_json_content = read_file_contents(gathers_json_path)
+    olm_operators_content = read_file_contents(olm_operators_path)
 
     if args.no_gpt:
         # Print the file contents using jq for pretty-printing, debug
